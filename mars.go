@@ -3,6 +3,8 @@ package mars
 import (
     "strconv"
     "crypto/cipher"
+
+    "github.com/pedroalbanese/mars/internal/subtle"
 )
 
 const BlockSize = 16
@@ -45,6 +47,10 @@ func (this *marsCipher) Encrypt(dst, src []byte) {
         panic("cryptobin/mars: output not full block")
     }
 
+    if subtle.InexactOverlap(dst[:BlockSize], src[:BlockSize]) {
+        panic("cryptobin/mars: invalid buffer overlap")
+    }
+
     this.encryptBlock(dst, src)
 }
 
@@ -55,6 +61,10 @@ func (this *marsCipher) Decrypt(dst, src []byte) {
 
     if len(dst) < BlockSize {
         panic("cryptobin/mars: output not full block")
+    }
+
+    if subtle.InexactOverlap(dst[:BlockSize], src[:BlockSize]) {
+        panic("cryptobin/mars: invalid buffer overlap")
     }
 
     this.decryptBlock(dst, src)
